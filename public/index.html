@@ -64,24 +64,26 @@ a{color:inherit}
 /* ---------- 侧栏目录 ---------- */
 #sideNav{display:flex;flex-direction:column;gap:1px}
 .side-label{font-size:11px;color:var(--ink-faint);padding:8px 8px 2px;letter-spacing:.05em}
-.side-item{display:grid;grid-template-columns:16px 20px 1fr auto auto;align-items:center;gap:4px;
+.side-item{position:relative;display:flex;align-items:center;gap:4px;
   padding:5px 8px 5px calc(8px + var(--depth,0)*14px);border-radius:8px;color:var(--ink-soft);font-size:13.5px}
 .side-item:hover{background:#F2F4F8}
 .side-item.sel,.side-item.sel:hover{background:var(--blue);color:#fff}
-.si-tw{width:16px;display:inline-block}
-.si-tw-btn{width:16px;height:18px;display:grid;place-items:center;color:var(--ink-faint);font-size:10px;border-radius:4px;transition:transform .15s}
+.si-tw{flex:0 0 16px}
+.si-tw-btn{flex:0 0 16px;width:16px;height:18px;display:grid;place-items:center;color:var(--ink-faint);font-size:10px;border-radius:4px;transition:transform .15s}
 .si-tw-btn.open{transform:rotate(90deg)}
 .side-item.sel .si-tw-btn{color:rgba(255,255,255,.85)}
-.si-ic{width:20px;height:20px;display:grid;place-items:center;color:var(--ink-faint)}
+.si-ic{flex:0 0 20px;width:20px;height:20px;display:grid;place-items:center;color:var(--ink-faint)}
 .side-item.sel .si-ic{color:#fff}
-.si-name{text-align:left;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.si-count{font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);background:#F2F4F8;border-radius:6px;padding:1px 6px;min-width:24px;text-align:center}
+.si-name{flex:1 1 auto;min-width:0;text-align:left;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-count{flex:0 0 auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-faint);background:#F2F4F8;border-radius:6px;padding:1px 6px;min-width:24px;text-align:center}
 .side-item.sel .si-count{background:rgba(255,255,255,.22);color:#fff}
-.si-ops{display:flex;gap:2px;opacity:0}
-.side-item:hover .si-ops,.side-item:focus-within .si-ops{opacity:1}
+.si-ops{position:absolute;right:6px;top:50%;transform:translateY(-50%);display:none;gap:1px;
+  background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:1px;box-shadow:0 2px 8px rgba(31,35,41,.14);z-index:2}
+.side-item:hover .si-ops,.side-item:focus-within .si-ops{display:flex}
+.side-item.sel .si-ops{border-color:rgba(255,255,255,.35)}
 .side-item.sel .mini{color:rgba(255,255,255,.85)}
 .side-item.sel .mini:hover{background:rgba(255,255,255,.2);color:#fff}
-.side-item.editing{grid-template-columns:1fr;padding-top:4px;padding-bottom:4px}
+.side-item.editing{display:block;padding-top:4px;padding-bottom:4px}
 .side-editor{width:100%;border:1.5px solid var(--blue);border-radius:7px;padding:5px 8px;font-size:13px}
 .side-newcat{margin:4px 4px 0;border:1.5px dashed var(--line-strong);border-radius:8px;padding:6px;color:var(--ink-soft);font-size:12.5px;text-align:center;transition:.15s}
 .side-newcat:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-ghost)}
@@ -778,33 +780,73 @@ function renderMain() {
   setupIcons(body);
 }
 
+/* favicon 三级回退（带会话内缓存与超时兜底）：
+   ① https://<host>/favicon.ico 直连 → ② /api/favicon 代理 → ③ 字母色块 */
+const iconCache = new Map(); // host -> {kind:'img', url} | {kind:'letter'}
+
+function applyLetter(el, host) {
+  el.classList.add('ic-letter');
+  el.style.background = hostColor(host);
+  el.textContent = el.dataset.letter || '?';
+}
+
 function setupIcons(root) {
   $$('.ic[data-host]', root).forEach((el) => {
     const host = el.dataset.host;
-    const letter = el.dataset.letter || '?';
-    if (!host) {
-      el.classList.add('ic-letter');
-      el.style.background = hostColor('');
-      el.textContent = letter;
+    if (!host) { applyLetter(el, ''); return; }
+    const cached = iconCache.get(host);
+    if (cached) {
+      if (cached.kind === 'img') {
+        el.classList.add('ic-img');
+        el.textContent = '';
+        const img = new Image();
+        img.width = 18; img.height = 18; img.alt = '';
+        img.src = cached.url;
+        el.appendChild(img);
+      } else applyLetter(el, host);
       return;
     }
-    const img = new Image();
-    img.loading = 'lazy';
-    img.width = 18;
-    img.height = 18;
-    img.alt = '';
-    let stage = 0;
-    img.onerror = () => {
-      stage++;
-      if (stage === 1) img.src = `${API_BASE}/api/favicon?host=${encodeURIComponent(host)}`;
-      else {
-        el.classList.add('ic-letter');
-        el.style.background = hostColor(host);
-        el.textContent = letter;
-      }
+    const probe = new Image();
+    probe.width = 18; probe.height = 18; probe.alt = '';
+    let settled = false;
+    let timer = null;
+    const toImg = (url) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      iconCache.set(host, { kind: 'img', url });
+      el.classList.add('ic-img');
+      el.textContent = '';
+      const img = new Image();
+      img.width = 18; img.height = 18; img.alt = '';
+      img.src = url;
+      el.appendChild(img);
     };
-    img.onload = () => { el.classList.add('ic-img'); el.textContent = ''; el.appendChild(img); };
-    img.src = `https://${host}/favicon.ico`;
+    const toLetter = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      iconCache.set(host, { kind: 'letter' });
+      applyLetter(el, host);
+    };
+    // ② 代理（fetch 便于区分失败与挂起，并受超时兜底约束）
+    const viaProxy = () => {
+      if (settled) return;
+      timer = setTimeout(toLetter, 6000);
+      fetch(`${API_BASE}/api/favicon?host=${encodeURIComponent(host)}`)
+        .then((r) => {
+          if (!r.ok) return toLetter();
+          const ct = (r.headers.get('content-type') || '').toLowerCase();
+          if (!ct.startsWith('image/')) return toLetter();
+          return r.blob().then((b) => toImg(URL.createObjectURL(b)));
+        })
+        .catch(toLetter);
+    };
+    // ① 直连（内网域名可能长时间挂起，超时即转入下一级）
+    timer = setTimeout(viaProxy, 5000);
+    probe.onload = () => toImg(probe.src);
+    probe.onerror = viaProxy;
+    probe.src = `https://${host}/favicon.ico`;
   });
 }
 
