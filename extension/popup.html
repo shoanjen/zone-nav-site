@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF;
+  --ink:#1F2329; --ink-soft:#51565F; --ink-faint:#8F959E;
+  --line:#E5E8EF; --line-strong:#D5DAE3;
+  --blue:#3377FF; --blue-deep:#1F5FE0; --blue-soft:#EDF3FF; --blue-ghost:rgba(51,119,255,.10);
+  --amber:#FF8800; --amber-deep:#D97000; --amber-soft:#FFF4E8;
+  --danger:#E54545; --danger-soft:#FDEBEB;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono",ui-monospace,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{width:300px;margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 var(--font-body);-webkit-font-smoothing:antialiased;padding:12px}
+.brand{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.logo{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#4D8BFF,#3377FF);display:grid;place-items:center;box-shadow:0 3px 8px rgba(51,119,255,.35);flex:0 0 auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px}
+.sec-t{font-size:11px;color:var(--ink-faint);margin-bottom:6px;letter-spacing:.04em}
+select,input[type=text]{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:6px 8px;font-size:12.5px;background:var(--surface);color:var(--ink)}
+select:focus,input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-ghost)}
+.hidden{display:none!important}
+.status{font-size:11px;color:var(--ink-faint);margin-top:6px}
+.status.red{color:var(--danger)}
+.row{display:flex;align-items:flex-start;gap:6px;font-size:12.5px}
+.row input{margin-top:2px;flex:0 0 auto}
+.sub{font-size:11px;color:var(--ink-faint);margin:2px 0 0 20px}
+.mode-box{border:1.5px dashed var(--line-strong);border-radius:8px;padding:8px;margin-top:8px}
+.mode-t{font-size:11.5px;color:var(--ink-soft);margin-bottom:5px}
+.sub2{color:var(--ink-faint);font-size:11px}
+.btn{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);border-radius:9px;padding:7px 10px;font-size:12.5px;margin-top:6px;transition:.15s}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.btn.primary:hover{background:var(--blue-deep)}
+.btn.amber{background:var(--amber-soft);border-color:#F2C48B;color:var(--amber-deep);font-weight:600}
+.btn.amber:hover{background:#FFE9CE;border-color:var(--amber);color:var(--amber-deep)}
+.btn:disabled{opacity:.6;cursor:default}
+.foot{font-size:10.5px;color:var(--ink-faint);margin-top:8px;line-height:1.6}
+.foot b{color:var(--ink-soft)}
+</style>
+</head>
+<body>
+  <div class="brand">
+    <span class="logo"><svg width="15" height="15" viewBox="0 0 32 32" fill="none"><path d="M10 9h12v14l-6-4-6 4z" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg></span>
+    <b>抽屉同步</b>
+  </div>
+
+  <section class="card">
+    <div class="sec-t">个人资料</div>
+    <select id="profSel"></select>
+    <input type="text" id="profInput" class="hidden" placeholder="新资料名，回车保存">
+    <div class="status" id="profStatus"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-t">收纳方式</div>
+    <label class="row"><input type="checkbox" id="rmChk"> 收进抽屉后移出 Chrome 书签</label>
+    <div class="sub">不勾选则两边各留一份</div>
+    <div class="mode-box">
+      <div class="mode-t">点收藏时如何归类：</div>
+      <label class="row"><input type="radio" name="mode" value="ask"> 弹窗选分类 <span class="sub2">每条收藏自己挑去处</span></label>
+      <label class="row"><input type="radio" name="mode" value="folder"> 按书签文件夹 <span class="sub2">文件夹路径自动成为多级分类</span></label>
+    </div>
+  </section>
+
+  <button id="queueBtn" class="btn amber hidden"></button>
+  <button id="collectBtn" class="btn primary">★ 收藏当前标签页…选分类</button>
+  <button id="importBtn" class="btn">导入现有全部书签</button>
+  <button id="openBtn" class="btn">打开抽屉工作台</button>
+  <div class="status" id="statusLine"></div>
+
+  <div class="foot">每个 Chrome 个人资料各装一份扩展、各起一个名字，收藏就会自动分开。服务需先在抽屉工作台目录运行 <b>node server.js</b>。</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

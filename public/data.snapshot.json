@@ -1,0 +1,115 @@
+{
+  "links": [
+    {
+      "id": "demo-01-github-trending",
+      "title": "GitHub Trending",
+      "url": "https://github.com/trending",
+      "category": "工作/前端",
+      "profile": "默认",
+      "tags": ["灵感"],
+      "note": "看看社区热点",
+      "source": "import",
+      "createdAt": "2026-11-09T10:00:00.000Z"
+    },
+    {
+      "id": "demo-02-mdn",
+      "title": "MDN Web 文档",
+      "url": "https://developer.mozilla.org/zh-CN/",
+      "category": "工作/前端",
+      "profile": "默认",
+      "tags": ["文档"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T09:00:00.000Z"
+    },
+    {
+      "id": "demo-03-react",
+      "title": "React",
+      "url": "https://react.dev",
+      "category": "工作/前端/组件",
+      "profile": "默认",
+      "tags": ["文档", "框架"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "demo-04-webdev",
+      "title": "web.dev",
+      "url": "https://web.dev",
+      "category": "工作/前端",
+      "profile": "默认",
+      "tags": ["性能"],
+      "note": "性能与最佳实践",
+      "source": "import",
+      "createdAt": "2026-11-09T07:00:00.000Z"
+    },
+    {
+      "id": "demo-05-hn",
+      "title": "Hacker News",
+      "url": "https://news.ycombinator.com",
+      "category": "阅读",
+      "profile": "默认",
+      "tags": ["资讯"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T06:00:00.000Z"
+    },
+    {
+      "id": "demo-06-wiki",
+      "title": "维基百科",
+      "url": "https://zh.wikipedia.org",
+      "category": "阅读",
+      "profile": "默认",
+      "tags": ["工具"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T05:00:00.000Z"
+    },
+    {
+      "id": "demo-07-excalidraw",
+      "title": "Excalidraw",
+      "url": "https://excalidraw.com",
+      "category": "生活",
+      "profile": "默认",
+      "tags": ["白板"],
+      "note": "手绘风协作画板",
+      "source": "import",
+      "createdAt": "2026-11-09T04:00:00.000Z"
+    },
+    {
+      "id": "demo-08-bilibili",
+      "title": "哔哩哔哩",
+      "url": "https://www.bilibili.com",
+      "category": "生活",
+      "profile": "默认",
+      "tags": [],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T03:00:00.000Z"
+    },
+    {
+      "id": "demo-09-figma",
+      "title": "Figma",
+      "url": "https://www.figma.com",
+      "category": "工作/设计",
+      "profile": "演示资料",
+      "tags": ["设计"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T02:00:00.000Z"
+    },
+    {
+      "id": "demo-10-dribbble",
+      "title": "Dribbble",
+      "url": "https://dribbble.com",
+      "category": "工作/设计",
+      "profile": "演示资料",
+      "tags": ["灵感"],
+      "note": "",
+      "source": "import",
+      "createdAt": "2026-11-09T01:00:00.000Z"
+    }
+  ],
+  "categories": ["工作", "工作/前端", "工作/前端/组件", "工作/设计", "阅读", "生活"]
+}

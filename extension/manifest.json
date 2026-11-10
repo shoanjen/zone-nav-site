@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "抽屉同步 · 收藏到导航工作台",
+  "version": "1.0.0",
+  "description": "在 Chrome 里收藏网页时，自动收进本地导航工作台（抽屉工作台）",
+  "permissions": ["bookmarks", "storage", "identity", "identity.email", "activeTab"],
+  "host_permissions": ["http://127.0.0.1:4780/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "抽屉同步"
+  },
+  "commands": {
+    "collect-tab": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "收藏当前标签页到抽屉（选分类）"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+:root{
+  --bg:#F5F7FA; --surface:#FFFFFF;
+  --ink:#1F2329; --ink-soft:#51565F; --ink-faint:#8F959E;
+  --line:#E5E8EF; --line-strong:#D5DAE3;
+  --blue:#3377FF; --blue-deep:#1F5FE0; --blue-soft:#EDF3FF; --blue-ghost:rgba(51,119,255,.10);
+  --amber:#FF8800; --amber-deep:#D97000; --amber-soft:#FFF4E8;
+  --danger:#E54545; --danger-soft:#FDEBEB;
+  --font-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono",ui-monospace,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.5 var(--font-body);-webkit-font-smoothing:antialiased;padding:14px;display:flex;flex-direction:column;gap:10px}
+header{font-size:14px;font-weight:700}
+.item-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px 10px 16px;overflow:hidden}
+.item-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#4D8BFF,#3377FF)}
+#tTitle{width:100%;border:none;border-radius:6px;padding:4px 6px;font-size:13.5px;font-weight:600;background:transparent;color:var(--ink)}
+#tTitle:focus{outline:none;background:var(--surface);box-shadow:0 0 0 1.5px var(--blue)}
+#tUrl{font-family:var(--font-mono);font-size:10.5px;color:var(--ink-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+.field-t{font-size:11px;color:var(--ink-faint);letter-spacing:.04em;margin-bottom:-4px}
+.dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink)}
+.dd-btn:hover{border-color:var(--blue)}
+.dd-lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd-car{color:var(--ink-faint);font-size:10px}
+.dd-pop{position:fixed;z-index:1000;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 32px rgba(31,35,41,.16);padding:4px;overflow:auto}
+.dd-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;font-size:13px;cursor:pointer;white-space:nowrap}
+.dd-item:hover{background:var(--blue-soft)}
+.dd-item .ck{margin-left:auto;font-size:11px;visibility:hidden}
+.dd-item.sel{color:var(--blue);font-weight:600}
+.dd-item.sel .ck{visibility:visible}
+.dd-item.amber{color:var(--amber-deep)}
+#newCat{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;font-size:13px;background:var(--surface)}
+#newCat:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-ghost)}
+.hidden{display:none!important}
+.btns{display:flex;gap:8px;margin-top:auto}
+.btn{flex:1;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);border-radius:9px;padding:8px 10px;font-size:12.5px;transition:.15s}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.btn.primary:hover{background:var(--blue-deep)}
+.btn:disabled{opacity:.6;cursor:default}
+.status{font-size:11.5px;color:var(--ink-faint);min-height:16px}
+.status.red{color:var(--danger)}
+</style>
+</head>
+<body>
+  <header>收进抽屉</header>
+  <div class="item-card">
+    <input id="tTitle" maxlength="200" placeholder="标题">
+    <div id="tUrl"></div>
+  </div>
+  <div class="field-t">归类到分类</div>
+  <div id="catDd"></div>
+  <input id="newCat" class="hidden" placeholder="如：设计、运维、摸鱼">
+  <div class="btns">
+    <button id="skipBtn" class="btn">跳过（留在书签里）</button>
+    <button id="saveBtn" class="btn primary">收进抽屉</button>
+  </div>
+  <div class="status" id="status"></div>
+<script src="picker.js"></script>
+</body>
+</html>
