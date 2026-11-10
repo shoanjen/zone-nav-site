@@ -326,7 +326,9 @@ async function favicon(res, host) {
     return res.end();
   }
   try {
-    const r = await fetch(`https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(host)}`);
+    const r = await fetch(`https://www.google.com/s2/favicons?sz=64&domain=${encodeURIComponent(host)}`, {
+      signal: AbortSignal.timeout(5000),
+    });
     const buf = Buffer.from(await r.arrayBuffer());
     const md5 = crypto.createHash('md5').update(buf).digest('hex');
     if (!buf.length || md5 === GHOST_MD5) {

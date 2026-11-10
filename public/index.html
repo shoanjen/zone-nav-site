@@ -780,9 +780,10 @@ function renderMain() {
   setupIcons(body);
 }
 
-/* favicon 三级回退（带会话内缓存与超时兜底）：
-   ① https://<host>/favicon.ico 直连 → ② /api/favicon 代理 → ③ 字母色块 */
-const iconCache = new Map(); // host -> {kind:'img', url} | {kind:'letter'}
+/* favicon 渐进显示：字母色块立即出现（毫秒级），真实图标由 ①直连 ②代理 并行竞速，
+   谁先成功就替换字母；两路都失败则保持字母。结果存会话内缓存，重渲染秒出。 */
+const iconCache = new Map();   // host -> {kind:'img', url} | {kind:'letter'}
+const iconResolving = new Set();
 
 function applyLetter(el, host) {
   el.classList.add('ic-letter');
@@ -790,63 +791,58 @@ function applyLetter(el, host) {
   el.textContent = el.dataset.letter || '?';
 }
 
+function applyImg(el, host, url) {
+  el.classList.remove('ic-letter');
+  el.style.background = '';
+  el.classList.add('ic-img');
+  el.textContent = '';
+  const img = new Image();
+  img.width = 18; img.height = 18; img.alt = '';
+  img.src = url;
+  el.appendChild(img);
+}
+
+function resolveIcon(host) {
+  if (iconCache.has(host) || iconResolving.has(host)) return;
+  iconResolving.add(host);
+  let pending = 2;
+  const finish = (kind, url) => {
+    if (iconCache.has(host)) return; // 另一路已抢先解决
+    iconCache.set(host, kind === 'img' ? { kind: 'img', url } : { kind: 'letter' });
+    iconResolving.delete(host);
+    // 刷新页面上同一 host 的所有图标位
+    $$('.ic[data-host]').forEach((el) => {
+      if (el.dataset.host !== host || !el.isConnected) return;
+      if (kind === 'img') applyImg(el, host, url);
+    });
+  };
+  const fail = () => { pending -= 1; if (pending <= 0) finish('letter'); };
+  // ① 直连 favicon.ico（超时只是放弃升级，不影响已显示的字母块）
+  const probe = new Image();
+  const probeTimer = setTimeout(() => { probe.src = ''; fail(); }, 4000);
+  probe.onload = () => { clearTimeout(probeTimer); finish('img', probe.src); };
+  probe.onerror = () => { clearTimeout(probeTimer); fail(); };
+  probe.src = `https://${host}/favicon.ico`;
+  // ② 服务端代理（与直连并行）
+  const proxyTimer = setTimeout(fail, 7000);
+  fetch(`${API_BASE}/api/favicon?host=${encodeURIComponent(host)}`)
+    .then((r) => {
+      clearTimeout(proxyTimer);
+      if (!r.ok) return fail();
+      const ct = (r.headers.get('content-type') || '').toLowerCase();
+      if (!ct.startsWith('image/')) return fail();
+      return r.blob().then((b) => finish('img', URL.createObjectURL(b)));
+    })
+    .catch(() => { clearTimeout(proxyTimer); fail(); });
+}
+
 function setupIcons(root) {
   $$('.ic[data-host]', root).forEach((el) => {
     const host = el.dataset.host;
-    if (!host) { applyLetter(el, ''); return; }
     const cached = iconCache.get(host);
-    if (cached) {
-      if (cached.kind === 'img') {
-        el.classList.add('ic-img');
-        el.textContent = '';
-        const img = new Image();
-        img.width = 18; img.height = 18; img.alt = '';
-        img.src = cached.url;
-        el.appendChild(img);
-      } else applyLetter(el, host);
-      return;
-    }
-    const probe = new Image();
-    probe.width = 18; probe.height = 18; probe.alt = '';
-    let settled = false;
-    let timer = null;
-    const toImg = (url) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      iconCache.set(host, { kind: 'img', url });
-      el.classList.add('ic-img');
-      el.textContent = '';
-      const img = new Image();
-      img.width = 18; img.height = 18; img.alt = '';
-      img.src = url;
-      el.appendChild(img);
-    };
-    const toLetter = () => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      iconCache.set(host, { kind: 'letter' });
-      applyLetter(el, host);
-    };
-    // ② 代理（fetch 便于区分失败与挂起，并受超时兜底约束）
-    const viaProxy = () => {
-      if (settled) return;
-      timer = setTimeout(toLetter, 6000);
-      fetch(`${API_BASE}/api/favicon?host=${encodeURIComponent(host)}`)
-        .then((r) => {
-          if (!r.ok) return toLetter();
-          const ct = (r.headers.get('content-type') || '').toLowerCase();
-          if (!ct.startsWith('image/')) return toLetter();
-          return r.blob().then((b) => toImg(URL.createObjectURL(b)));
-        })
-        .catch(toLetter);
-    };
-    // ① 直连（内网域名可能长时间挂起，超时即转入下一级）
-    timer = setTimeout(viaProxy, 5000);
-    probe.onload = () => toImg(probe.src);
-    probe.onerror = viaProxy;
-    probe.src = `https://${host}/favicon.ico`;
+    if (cached && cached.kind === 'img') { applyImg(el, host, cached.url); return; }
+    applyLetter(el, host); // 立即显示，后续异步升级为真实图标
+    if (host) resolveIcon(host);
   });
 }
 
