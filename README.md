@@ -10,6 +10,8 @@ node server.js          # 或 macOS 双击「启动工作台.command」
 
 打开 http://127.0.0.1:4780 （可用环境变量 `PORT` 换端口）。数据保存在 `data/links.json`，只在本机。
 
+「启动工作台.command」会自动启动本地服务，并打开脚本顶部 `SITE_URL` 指向的云端入口地址（部署后请改成你自己的，见下方「部署方式」）；也可以直接访问 http://127.0.0.1:4780 。
+
 ## Chrome 扩展「抽屉同步」
 
 1. 打开 `chrome://extensions`，开启右上角「开发者模式」；
@@ -35,7 +37,8 @@ node server.js          # 或 macOS 双击「启动工作台.command」
    ```
 
 3. 仓库 Settings → Pages → Source 选择「GitHub Actions」；
-4. 推送后内置工作流（`.github/workflows/deploy-pages.yml`）自动把 `public/` 部署到 `https://<用户名>.github.io/<仓库名>/`。
+4. 推送后内置工作流（`.github/workflows/deploy-pages.yml`）自动把 `public/` 部署到 `https://<用户名>.github.io/<仓库名>/`；
+5. **修改启动脚本**：「启动工作台.command」顶部的 `SITE_URL` 默认是仓库作者的地址，请改成你自己的 `https://<用户名>.github.io/<仓库名>/`，这样双击脚本打开的就是你的云端入口。
 
 ### 部署后的工作方式
 
