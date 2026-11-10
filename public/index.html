@@ -280,7 +280,7 @@ dialog::backdrop{background:rgba(31,35,41,.40);backdrop-filter:blur(1.5px)}
     <div class="field"><label>分类</label><input id="fCat" autocomplete="off" placeholder="如：工作/前端"></div>
     <div class="field"><label>标签</label><input id="fTags" placeholder="逗号分隔，如：设计, 工具"></div>
     <div class="field"><label>备注</label><textarea id="fNote" placeholder="为什么收藏它？"></textarea></div>
-    <div class="dlg-foot"><button type="submit" class="btn primary" id="dlgLinkSubmit">收进抽屉</button></div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary" id="dlgLinkSubmit">收进抽屉</button></div>
   </form>
 </dialog>
 
@@ -289,7 +289,7 @@ dialog::backdrop{background:rgba(31,35,41,.40);backdrop-filter:blur(1.5px)}
     <h2>重命名个人资料</h2>
     <div class="field"><label>新的资料名 <span class="req">必填</span></label><input id="fProfile" required placeholder="如：shoan-i18n"></div>
     <div class="hint">该资料下已有的收藏会一起迁到新名下。</div>
-    <div class="dlg-foot"><button type="submit" class="btn primary">改名</button></div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">改名</button></div>
   </form>
 </dialog>
 
@@ -1496,6 +1496,9 @@ function wireTools() {
 }
 
 /* ================= 启动 ================= */
+$$('dialog .dlg-foot [data-close]').forEach((b) => {
+  b.addEventListener('click', () => b.closest('dialog').close());
+});
 wireNav();
 wireMain();
 wireDrag();
